@@ -1,13 +1,15 @@
 package snowflakework
 
 import (
+	"os"
 	"time"
 )
 
 //0 41 10 12
 
 var shiftTime uint64 = 1483200000000 //2017-01-01
-var count uint64 = 0                 //
+var count uint64 = 0
+var workdId uint64 = 0 //
 
 func getNowTimeStamp() uint64 {
 	timestamp := uint64(time.Now().UnixNano() / 1000000)
@@ -16,7 +18,16 @@ func getNowTimeStamp() uint64 {
 
 func getWorkId() uint64 {
 	var mask uint64 = 0x3ff
-	return mask & 1
+	if workdId > 0 {
+		return workdId
+	}
+	//
+	pid := uint64(os.Getpid())
+	pid = mask & pid
+	if pid == 0 {
+		return 1
+	}
+	return pid
 }
 
 func getCount(timestamp uint64) uint64 {
@@ -34,6 +45,10 @@ func getCount(timestamp uint64) uint64 {
 		return 0
 	}
 	return count
+}
+
+func SetWorkId(id uint64) {
+	workdId = id
 }
 
 func MakeId() uint64 {
